@@ -21,22 +21,29 @@ namespace DENTAL_WPF
     /// </summary>
     public partial class MainWindow : Window
     {
-        OpenFileDialog loader = new();
-        SaveFileDialog saver = new();
         BitmapImage AddBitmap;
         BitmapImage InfoBitmap;
         About? a;
-        EditWindow? d;
+        EditWindow? D;
+        ClinicEditWindow? CdD;
         bool isDark = true;
         DENTAL_Context dc;
         public ObservableCollection<Dentist> Dentists { get; set; }
+        public ObservableCollection<DentalClinic> DentalClinics { get; set; }
+        public ObservableCollection<Models.License> Licenses { get; set; }
+        public ObservableCollection<Models.Category> Categories { get; set; }
+        public ObservableCollection<Models.Speciality> Specialities { get; set; }
 
         public MainWindow()
         {
             InitializeComponent();
 
             dc = new DENTAL_Context();
-            Dentists = new ObservableCollection<Dentist>(dc.Dentists.ToList());
+            Dentists = new(dc.Dentists.ToList());
+            DentalClinics = new(dc.DentalClinics.ToList());
+            Licenses = new(dc.Licenses.ToList());
+            Categories = new(dc.Categories.ToList());
+            Specialities = new(dc.Specialities.ToList());
             DataContext = this;
             RefreshDentists();
         }
@@ -53,106 +60,14 @@ namespace DENTAL_WPF
         {
             e.CanExecute = true;
         }
-        void CanExecuteSave(object sender, CanExecuteRoutedEventArgs e)
-        {
-            //e.CanExecute = true;
-            //if (CodeTextBox is null || CodeTextBox.Text == "")
-            //{
-            //    e.CanExecute = false;
-            //}
-            //if (NameTextBox is null || NameTextBox.Text == "")
-            //{
-            //    e.CanExecute = false;
-            //}
-        }
-        private void SaveClick(object sender, RoutedEventArgs e)
-        {
-            //AnimateButton(saveButton);
-            //saver.Filter = "JSON файлы (*.json)|*.json|Все файлы (*.*)|*.*";
-            //if (saver.ShowDialog() == true)
-            //{
-            //    p.Name = NameTextBox.Text;
-            //    p.Group = GroupComboBox.SelectedIndex;
-            //    p.ProductCode = CodeTextBox.Text;
-            //    p.Manufacturer = ManufacturerTextBox.Text;
-            //    p.CountryOfOrigin = CountryComboBox.SelectedIndex;
-            //    p.Weight = int.Parse(WeightTextBox.Text);
-            //    p.Package = PackageComboBox.SelectedIndex;
-            //    p.CaloricValue = int.Parse(CaloricValueTextBox.Text);
-            //    p.ProductionDate = ProductionDatePicker.SelectedDate;
-            //    p.ShelfLife = ShelfLifeDatePicker.SelectedDate;
-            //    p.Price = int.Parse(PriceTextBox.Text);
 
-            //    json = JsonConvert.SerializeObject(p, Formatting.Indented);
-            //    File.WriteAllText(saver.FileName, json);
-            //    Status.Content = "Файл " + saver.FileName + " сохранен";
-            //}
-        }
         
-        private void RefreshClick(object sender, RoutedEventArgs e)
-        {
-            DentistsDataGrid.ItemsSource = dc?.Dentists.ToList();
-        }
-        private void AnimateButton(Button button)
-        {
-            ScaleTransform scaleTransform = new ScaleTransform(1, 1);
-            button.RenderTransform = scaleTransform;
-            DoubleAnimation scaleXAnimation = new DoubleAnimation
-            {
-                From = 1,
-                To = 0.8,
-                Duration = TimeSpan.FromSeconds(0.2),
-                AutoReverse = true
-            };
-            DoubleAnimation scaleYAnimation = new DoubleAnimation
-            {
-                From = 1,
-                To = 0.8,
-                Duration = TimeSpan.FromSeconds(0.2),
-                AutoReverse = true
-            };
-            scaleTransform.BeginAnimation(ScaleTransform.ScaleXProperty, scaleXAnimation);
-            scaleTransform.BeginAnimation(ScaleTransform.ScaleYProperty, scaleYAnimation);
-        }
-
-        private void LoadClick(object sender, RoutedEventArgs e)
-        {
-            //AnimateButton(loadButton);
-            //loader.Filter = "JSON файлы (*.json)|*.json|Все файлы (*.*)|*.*";
-            //if (loader.ShowDialog() == true)
-            //{
-            //    try
-            //    {
-            //        json = File.ReadAllText(loader.FileName);
-            //        p = JsonConvert.DeserializeObject<Product>(json) ?? new();
-
-            //        NameTextBox.Text = p.Name;
-            //        GroupComboBox.SelectedIndex = p.Group;
-            //        CodeTextBox.Text = p.ProductCode;
-            //        ManufacturerTextBox.Text = p.Manufacturer;
-            //        CountryComboBox.SelectedIndex = p.CountryOfOrigin;
-            //        WeightTextBox.Text = p.Weight.ToString();
-            //        PackageComboBox.SelectedIndex = p.Package;
-            //        CaloricValueTextBox.Text = p.CaloricValue.ToString();
-            //        ProductionDatePicker.SelectedDate = p.ProductionDate;
-            //        ShelfLifeDatePicker.SelectedDate = p.ShelfLife;
-            //        PriceTextBox.Text = p.Price.ToString();
-            //        Status.Content = "Файл " + loader.FileName + " загружен";
-            //    }
-            //    catch
-            //    {
-            //        Status.Content = "Ошибка открытия файла " + loader.FileName;
-            //    }
-            //}
-        }
 
         private void NumberFilter(object sender, System.Windows.Input.TextCompositionEventArgs e)
         {
             Regex regex = new Regex("[^0-9]");
             e.Handled = regex.IsMatch(e.Text);
         }
-
-        
 
         private void AboutClick(object sender, RoutedEventArgs e)
         {
@@ -161,45 +76,76 @@ namespace DENTAL_WPF
         }
         private void AddClick(object sender, RoutedEventArgs e)
         {
-            var ids = dc.Dentists.Select(d => d.Id);
-            int nextMissingId = 1;
-
-            foreach (var id in ids)
+            IQueryable<int> ids;
+            int nextMissingId;
+            object emp;
+            object editWindow;
+            switch (ProgTabControl.SelectedIndex)
             {
-                if (id == nextMissingId)
-                    nextMissingId++;
-                else
+                case 0:
+                    ids = dc.Dentists.Select(d => d.Id);
+                    nextMissingId = 1;
+
+                    foreach (var id in ids)
+                    {
+                        if (id == nextMissingId)
+                            nextMissingId++;
+                        else
+                            break;
+                    }
+                    emp = new Dentist
+                    {
+                        Id = nextMissingId,
+                        Name = "",
+                        Surname = "",
+                        BeginDate = null,
+                        CategoryId = null,
+                        SpecialityId = null,
+                        DentalClinicId = null
+                    };
+
+                    editWindow = new EditWindow((Dentist)emp, dc);
+                    ((EditWindow)editWindow).ShowDialog();
+                    dc.SaveChanges();
+                    DentistsDataGrid.ItemsSource = dc?.Dentists.ToList();
                     break;
-            }
-            var emp = new Dentist
-            {
-                Id = nextMissingId,
-                Name = "",
-                Surname = "",
-                BeginDate = null,
-                CategoryId = null,
-                SpecialityId = null,
-                DentalClinicId = null
-            };
+                case 1:
+                    ids = dc.DentalClinics.Select(d => d.Id);
+                    nextMissingId = 1;
 
-            var editWindow = new EditWindow(emp, dc);
-            editWindow.ShowDialog();
-            dc.SaveChanges();
+                    foreach (var id in ids)
+                    {
+                        if (id == nextMissingId)
+                            nextMissingId++;
+                        else
+                            break;
+                    }
+                    emp = new DentalClinic
+                    {
+                        Id = nextMissingId,
+                        Name = "",
+                        Country = "",
+                        City = null,
+                        LicenseId = null
+                    };
+
+                    editWindow = new ClinicEditWindow((DentalClinic)emp, dc);
+                    ((ClinicEditWindow)editWindow).ShowDialog();
+                    dc.SaveChanges();
+                    ClinicsDataGrid.ItemsSource = dc?.DentalClinics.ToList();
+                    break;
+                default:
+                    MessageBox.Show("Пока не работает",
+                "Предупреждение", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        break;
+            }
+            
         }
         private void ExitClick(object sender, RoutedEventArgs e)
         {
             Close();
         }
 
-        private void Window_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
-        {
-            if (a != null) if (a.IsLoaded) a.Close();
-        }
-
-        private void Window_PreviewMouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
-        {
-            if (a != null) if (a.IsLoaded) a.Close();
-        }
         private void ChangeTheme(object sender, RoutedEventArgs e)
         {
             switch (((MenuItem)sender).Uid)
@@ -269,17 +215,76 @@ namespace DENTAL_WPF
             var emp = DentistsDataGrid.SelectedItem as Dentist;
             if (emp is not null)
             {
-                d = new(emp, dc);
-                d.ShowDialog();
+                D = new(emp, dc);
+                D.ShowDialog();
                 dc.SaveChanges();
-                RefreshClick(sender, e); // обновляем список
+                DentistsDataGrid.ItemsSource = dc?.Dentists.ToList();
             }
             else
             {
-                Status.Content = "Для удаления сотрудника выберите его !!!";
+                Status.Content = "Для редактирования дантиста выберите его !!!";
             }
         }
-
+        private void ClinicEditClick(object sender, RoutedEventArgs e)
+        {
+            var emp = ClinicsDataGrid.SelectedItem as DentalClinic;
+            if (emp is not null)
+            {
+                CdD = new(emp, dc);
+                CdD.ShowDialog();
+                dc.SaveChanges();
+                ClinicsDataGrid.ItemsSource = dc?.DentalClinics.ToList();
+            }
+            else
+            {
+                Status.Content = "Для удаления редактирования клиники выберите её !!!";
+            }
+        }
+        private void CategoryEditClick(object sender, RoutedEventArgs e)
+        {
+            var emp = ClinicsDataGrid.SelectedItem as DentalClinic;
+            if (emp is not null)
+            {
+                CdD = new(emp, dc);
+                CdD.ShowDialog();
+                dc.SaveChanges();
+                ClinicsDataGrid.ItemsSource = dc?.DentalClinics.ToList();
+            }
+            else
+            {
+                Status.Content = "Для удаления редактирования клиники выберите её !!!";
+            }
+        }
+        private void SpecialityEditClick(object sender, RoutedEventArgs e)
+        {
+            var emp = ClinicsDataGrid.SelectedItem as DentalClinic;
+            if (emp is not null)
+            {
+                CdD = new(emp, dc);
+                CdD.ShowDialog();
+                dc.SaveChanges();
+                ClinicsDataGrid.ItemsSource = dc?.DentalClinics.ToList();
+            }
+            else
+            {
+                Status.Content = "Для удаления редактирования клиники выберите её !!!";
+            }
+        }
+        private void LicenseEditClick(object sender, RoutedEventArgs e)
+        {
+            var emp = ClinicsDataGrid.SelectedItem as DentalClinic;
+            if (emp is not null)
+            {
+                CdD = new(emp, dc);
+                CdD.ShowDialog();
+                dc.SaveChanges();
+                ClinicsDataGrid.ItemsSource = dc?.DentalClinics.ToList();
+            }
+            else
+            {
+                Status.Content = "Для удаления редактирования клиники выберите её !!!";
+            }
+        }
         private void DeleteClick(object sender, RoutedEventArgs e)
         {
             if (MessageBox.Show("Вы действительно хотите удалить данные ?",
@@ -292,7 +297,7 @@ namespace DENTAL_WPF
                 {
                     dc.Dentists.Remove(emp);
                     dc.SaveChanges();
-                    RefreshClick(sender, e); // обновляем список
+                    DentistsDataGrid.ItemsSource = dc?.Dentists.ToList();
                 }
                 else
                 {
@@ -300,20 +305,85 @@ namespace DENTAL_WPF
                 }
             }
         }
-
-    }
-    public class Product
-    {
-        public string? Name { get; set; }
-        public int Group { get; set; }
-        public string? ProductCode { get; set; }
-        public string? Manufacturer { get; set; }
-        public int CountryOfOrigin { get; set; }
-        public int Weight { get; set; }
-        public int CaloricValue { get; set; }
-        public int Package { get; set; }
-        public DateTime? ProductionDate { get; set; }
-        public DateTime? ShelfLife { get; set; }
-        public int Price { get; set; }
+        private void ClinicDeleteClick(object sender, RoutedEventArgs e)
+        {
+            if (MessageBox.Show("Вы действительно хотите удалить данные ?",
+                "Предупреждение", MessageBoxButton.YesNo, MessageBoxImage.Warning,
+                MessageBoxResult.Yes) == MessageBoxResult.Yes)
+            {
+                // SelectedIndex
+                var emp = ClinicsDataGrid.SelectedItem as DentalClinic;
+                if (emp is not null)
+                {
+                    dc.DentalClinics.Remove(emp);
+                    dc.SaveChanges();
+                    ClinicsDataGrid.ItemsSource = dc?.DentalClinics.ToList(); // обновляем список
+                }
+                else
+                {
+                    Status.Content = "Для удаления клиники выберите её !!!";
+                }
+            }
+        }
+        private void CategoryDeleteClick(object sender, RoutedEventArgs e)
+        {
+            if (MessageBox.Show("Вы действительно хотите удалить данные ?",
+                "Предупреждение", MessageBoxButton.YesNo, MessageBoxImage.Warning,
+                MessageBoxResult.Yes) == MessageBoxResult.Yes)
+            {
+                // SelectedIndex
+                var emp = CategoriesDataGrid.SelectedItem as Models.Category;
+                if (emp is not null)
+                {
+                    dc.Categories.Remove(emp);
+                    dc.SaveChanges();
+                    CategoriesDataGrid.ItemsSource = dc?.Categories.ToList(); // обновляем список
+                }
+                else
+                {
+                    Status.Content = "Для удаления категории выберите её !!!";
+                }
+            }
+        }
+        private void SpecialityDeleteClick(object sender, RoutedEventArgs e)
+        {
+            if (MessageBox.Show("Вы действительно хотите удалить данные ?",
+                "Предупреждение", MessageBoxButton.YesNo, MessageBoxImage.Warning,
+                MessageBoxResult.Yes) == MessageBoxResult.Yes)
+            {
+                // SelectedIndex
+                var emp = SpecialitiesDataGrid.SelectedItem as Models.Speciality;
+                if (emp is not null)
+                {
+                    dc.Specialities.Remove(emp);
+                    dc.SaveChanges();
+                    SpecialitiesDataGrid.ItemsSource = dc?.Specialities.ToList(); // обновляем список
+                }
+                else
+                {
+                    Status.Content = "Для удаления специальности выберите её !!!";
+                }
+            }
+        }
+        private void LicenseDeleteClick(object sender, RoutedEventArgs e)
+        {
+            if (MessageBox.Show("Вы действительно хотите удалить данные ?",
+                "Предупреждение", MessageBoxButton.YesNo, MessageBoxImage.Warning,
+                MessageBoxResult.Yes) == MessageBoxResult.Yes)
+            {
+                // SelectedIndex
+                var emp = LicensesDataGrid.SelectedItem as Models.License;
+                if (emp is not null)
+                {
+                    dc.Licenses.Remove(emp);
+                    dc.SaveChanges();
+                    LicensesDataGrid.ItemsSource = dc?.Licenses.ToList(); // обновляем список
+                }
+                else
+                {
+                    Status.Content = "Для удаления лицензии выберите её !!!";
+                }
+            }
+        }
     }
 }

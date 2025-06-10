@@ -15,7 +15,7 @@ public partial class DentalClinic
 
     public string City { get; set; }
 
-    public int LicenseId { get; set; }
+    public int? LicenseId { get; set; }
 
     public virtual ICollection<Dentist> Dentists { get; set; } = new List<Dentist>();
 

@@ -8,12 +8,7 @@
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
 xmlns:col="clr-namespace:System.Collections;assembly=mscorlib" 
         Style="{StaticResource CustomWindowStyle}"
-        Title="Стоматологическая клиника" Height="450" Width="800" PreviewKeyDown="Window_PreviewKeyDown" PreviewMouseDown="Window_PreviewMouseDown">
-    <Window.CommandBindings>
-        <CommandBinding Command="ApplicationCommands.Save"
-                Executed="SaveClick"
-                CanExecute="CanExecuteSave"/>
-    </Window.CommandBindings>
+        Title="Стоматологическая клиника" Height="450" Width="800">
     <Grid ShowGridLines="True">
         <Grid.RowDefinitions>
             <RowDefinition Height="18*" MinHeight="18" MaxHeight="20"/>
@@ -37,9 +32,7 @@ xmlns:col="clr-namespace:System.Collections;assembly=mscorlib"
         </ToolBar>
         <Menu>
             <MenuItem x:Name="FileMenuItem" Header="Файл" >
-                <MenuItem x:Name="SaveMenuItem" Header="Сохранить" Command="ApplicationCommands.Save" VerticalContentAlignment="Center"/>
-                <MenuItem x:Name="LoadMenuItem" Header="Загрузить" Click="LoadClick" VerticalContentAlignment="Center"/>
-                
+                <MenuItem x:Name="AddMenuItem" Header="Добавить" Click="AddClick" VerticalContentAlignment="Center"/>
                 <MenuItem x:Name="ExitMenuItem" Header="Выход" InputGestureText="Alt + F4" Click="ExitClick" VerticalContentAlignment="Center"/>
             </MenuItem>
             <MenuItem x:Name="ToolsMenuItem" Header="Средства">
@@ -83,7 +76,7 @@ xmlns:col="clr-namespace:System.Collections;assembly=mscorlib"
             </MenuItem>
             <MenuItem x:Name="AboutMenuItem" Header="О программе" Click="AboutClick"/>
         </Menu>
-        <TabControl Grid.Row="2">
+        <TabControl x:Name="ProgTabControl" Grid.Row="2">
             <TabItem x:Name="DentistsTab" Header="Дантисты">
                 <DataGrid x:Name="DentistsDataGrid"
               AutoGenerateColumns="False"
@@ -112,12 +105,96 @@ xmlns:col="clr-namespace:System.Collections;assembly=mscorlib"
                 </DataGrid>
             </TabItem>
             <TabItem Header="Стоматологические клиники">
+                <DataGrid x:Name="ClinicsDataGrid"
+AutoGenerateColumns="False"
+IsReadOnly="True"
+ItemsSource="{Binding DentalClinics}"
+SelectionUnit="FullRow" HeadersVisibility="Column" HorizontalAlignment="Left" VerticalAlignment="Top">
+
+
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Идентификатор" Binding="{Binding Id}" />
+                        <DataGridTextColumn Header="Название клиники" Binding="{Binding Name}" />
+                        <DataGridTextColumn Header="Страна" Binding="{Binding Country}" />
+                        <DataGridTextColumn Header="Город" Binding="{Binding City}" />
+                        <DataGridTextColumn Header="Лицензия" Binding="{Binding LicenseId}" />
+                    </DataGrid.Columns>
+
+                    <DataGrid.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Name="ClinicEditMenuItem" Header="Редактировать" Click="ClinicEditClick"/>
+                            <MenuItem Name="ClinicDeleteMenuItem" Header="Удалить" Click="ClinicDeleteClick"/>
+                        </ContextMenu>
+                    </DataGrid.ContextMenu>
+
+                </DataGrid>
             </TabItem>
             <TabItem Header="Специальности">
+                <DataGrid x:Name="SpecialitiesDataGrid"
+AutoGenerateColumns="False"
+IsReadOnly="True"
+ItemsSource="{Binding Specialities}"
+SelectionUnit="FullRow" HeadersVisibility="Column" HorizontalAlignment="Left" VerticalAlignment="Top">
+
+
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Идентификатор" Binding="{Binding Id}" />
+                        <DataGridTextColumn Header="Название специальности" Binding="{Binding Name}" />
+                    </DataGrid.Columns>
+
+                    <DataGrid.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Name="SpecialityEditMenuItem" Header="Редактировать" Click="SpecialityEditClick"/>
+                            <MenuItem Name="SpecialityDeleteMenuItem" Header="Удалить" Click="SpecialityDeleteClick"/>
+                        </ContextMenu>
+                    </DataGrid.ContextMenu>
+
+                </DataGrid>
             </TabItem>
             <TabItem Header="Категории">
+                <DataGrid x:Name="CategoriesDataGrid"
+AutoGenerateColumns="False"
+IsReadOnly="True"
+ItemsSource="{Binding Categories}"
+SelectionUnit="FullRow" HeadersVisibility="Column" HorizontalAlignment="Left" VerticalAlignment="Top">
+
+
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Идентификатор" Binding="{Binding Id}" />
+                        <DataGridTextColumn Header="Название специальности" Binding="{Binding Name}" />
+                    </DataGrid.Columns>
+
+                    <DataGrid.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Name="CategoryEditMenuItem" Header="Редактировать" Click="CategoryEditClick"/>
+                            <MenuItem Name="CategoryDeleteMenuItem" Header="Удалить" Click="CategoryDeleteClick"/>
+                        </ContextMenu>
+                    </DataGrid.ContextMenu>
+
+                </DataGrid>
             </TabItem>
             <TabItem Header="Лицензии">
+                <DataGrid x:Name="LicensesDataGrid"
+AutoGenerateColumns="False"
+IsReadOnly="True"
+ItemsSource="{Binding Licenses}"
+SelectionUnit="FullRow" HeadersVisibility="Column" HorizontalAlignment="Left" VerticalAlignment="Top">
+
+
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Идентификатор" Binding="{Binding Id}" />
+                        <DataGridTextColumn Header="Название специальности" Binding="{Binding Name}" />
+                        <DataGridTextColumn Header="Выдащая компания" Binding="{Binding IssuingCompany}" />
+                    </DataGrid.Columns>
+
+                    <DataGrid.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Name="LicenseEditMenuItem" Header="Редактировать" Click="LicenseEditClick"/>
+                            <MenuItem Name="LicenseDeleteMenuItem" Header="Удалить" Click="LicenseDeleteClick"/>
+                        </ContextMenu>
+                    </DataGrid.ContextMenu>
+
+                </DataGrid>
             </TabItem>
             
         </TabControl>

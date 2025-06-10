@@ -6,15 +6,15 @@ using System.Windows.Input;
 
 namespace DENTAL_WPF
 {
-    public partial class EditWindow : Window
+    public partial class ClinicEditWindow : Window
     {
         private bool isChanged = false;
-        private Dentist den;
+        private DentalClinic den;
         private readonly DENTAL_Context dc;
         private bool isNewDentist = false;
 
-        
-        public EditWindow(Dentist d, DENTAL_Context context)
+
+        public ClinicEditWindow(DentalClinic d, DENTAL_Context context)
         {
             InitializeComponent();
 
@@ -26,101 +26,47 @@ namespace DENTAL_WPF
         }
 
 
+
         private void InitializeFields()
         {
             NameTextBox.Text = den.Name ?? string.Empty;
-            SurnameTextBox.Text = den.Surname ?? string.Empty;
+            CountryTextBox.Text = den.Country ?? string.Empty;
+            CityTextBox.Text = den.City ?? string.Empty;
 
-            if (den.BeginDate.HasValue)
+            if (dc.Licenses != null)
             {
-                BeginDatePicker.SelectedDate = new DateTime(
-                    den.BeginDate.Value.Year,
-                    den.BeginDate.Value.Month,
-                    den.BeginDate.Value.Day);
+                LicenseIdComboBox.ItemsSource = dc.Licenses.Select(c => c.Id).ToList();
+                LicenseIdComboBox.SelectedValue = den.LicenseId;
             }
             else
             {
-                BeginDatePicker.SelectedDate = null;
-            }
-
-            if (dc.Categories != null)
-            {
-                CategoryIdComboBox.ItemsSource = dc.Categories.Select(c => c.Id).ToList();
-                CategoryIdComboBox.SelectedValue = den.CategoryId;
-            }
-            else
-            {
-                CategoryIdComboBox.ItemsSource = new List<int>();
-                CategoryIdComboBox.IsEnabled = false;
-            }
-
-            if (dc.Specialities != null)
-            {
-                SpecialityIdComboBox.ItemsSource = dc.Specialities.Select(s => s.Id).ToList();
-                SpecialityIdComboBox.SelectedValue = den.SpecialityId;
-            }
-            else
-            {
-                SpecialityIdComboBox.ItemsSource = new List<int>();
-                SpecialityIdComboBox.IsEnabled = false;
-            }
-
-            if (dc.DentalClinics != null)
-            {
-                ClinicIdComboBox.ItemsSource = dc.DentalClinics.Select(cl => cl.Id).ToList();
-                ClinicIdComboBox.SelectedValue = den.DentalClinicId;
-            }
-            else
-            {
-                ClinicIdComboBox.ItemsSource = new List<int>();
-                ClinicIdComboBox.IsEnabled = false;
+                LicenseIdComboBox.ItemsSource = new List<int>();
+                LicenseIdComboBox.IsEnabled = false;
             }
         }
 
         private void SaveClick(object sender, RoutedEventArgs e)
         {
-            
+
             den.Name = NameTextBox.Text;
-            den.Surname = SurnameTextBox.Text;
+            den.Country = CountryTextBox.Text;
+            den.City = CityTextBox.Text;
+            den.LicenseId = (int)LicenseIdComboBox.SelectedValue;
 
-            if (BeginDatePicker.SelectedDate.HasValue)
-            {
-                den.BeginDate = DateOnly.FromDateTime(BeginDatePicker.SelectedDate.Value);
-            }
-            else
-            {
-                den.BeginDate = null;
-            }
-
-            den.CategoryId = CategoryIdComboBox.SelectedValue as int?;
-            den.SpecialityId = SpecialityIdComboBox.SelectedValue as int?;
-            den.DentalClinicId = ClinicIdComboBox.SelectedValue as int?;
-
-            if(dc.Dentists.Find(den.Id) != null) dc.Update(den);
+            if (dc.DentalClinics.Find(den.Id) != null) dc.Update(den);
             else dc.Add(den);
         }
 
         void CancelClick(object sender, RoutedEventArgs e)
         {
             NameTextBox.Text = den.Name ?? string.Empty;
-            SurnameTextBox.Text = den.Surname ?? string.Empty;
-
-            if (den.BeginDate.HasValue)
-            {
-                BeginDatePicker.SelectedDate = new DateTime(
-                    den.BeginDate.Value.Year,
-                    den.BeginDate.Value.Month,
-                    den.BeginDate.Value.Day
-                );
-            }
-            else BeginDatePicker.SelectedDate = null;
-            if (dc.Categories != null) CategoryIdComboBox.SelectedValue = den.CategoryId;
-            if (dc.Specialities != null) SpecialityIdComboBox.SelectedValue = den.SpecialityId;
-            if (dc.DentalClinics != null) ClinicIdComboBox.SelectedValue = den.DentalClinicId;
+            CountryTextBox.Text = den.Country ?? string.Empty;
+            CityTextBox.Text = den.City ?? string.Empty;
+            if (dc.Licenses != null) LicenseIdComboBox.SelectedValue = den.LicenseId;
 
         }
 
-        
+
         public void CanExecuteCancel(object sender, CanExecuteRoutedEventArgs e)
         {
             e.CanExecute = true;
@@ -173,7 +119,7 @@ namespace DENTAL_WPF
             //if (e.CanExecute == true) isChanged = true;
             //else isChanged = false;
         }
-        
+
 
         void CanExecuteSave(object sender, CanExecuteRoutedEventArgs e)
         {
@@ -182,9 +128,12 @@ namespace DENTAL_WPF
             {
                 e.CanExecute = false;
             }
-            if (SurnameTextBox is null || SurnameTextBox.Text == "")
+            if (LicenseIdComboBox != null)
             {
-                e.CanExecute = false;
+                if (LicenseIdComboBox.SelectedValue is null)
+                {
+                    e.CanExecute = false;
+                }
             }
         }
 
