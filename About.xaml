@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:DENTAL_WPF"
         mc:Ignorable="d"
         Style="{StaticResource CustomWindowStyle}"
-        Title="О программе" Height="333" Width="551" WindowStartupLocation="CenterScreen" ResizeMode="NoResize" PreviewKeyDown="Window_PreviewKeyDown" PreviewMouseDown="Window_PreviewMouseDown">
+        Title="О программе" Height="333" Width="551" WindowStartupLocation="CenterScreen" ResizeMode="NoResize">
     <Grid>
         <Image x:Name="AboutImage" Height="150" Margin="0,20,0,0" Width="150" VerticalAlignment="Top" Source="/DAbout.png" />
         <TextBlock HorizontalAlignment="Center" Margin="0,175,0,0" TextWrapping="Wrap" Text="Выполнил студент Академии TOP Миндубаев Тимур" VerticalAlignment="Top" Height="100" Width="170" TextAlignment="Center" FontSize="16"/>

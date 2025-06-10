@@ -17,13 +17,5 @@ namespace DENTAL_WPF
             AboutBitmap.EndInit();
             AboutImage.Source = AboutBitmap;
         }
-        private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
-        {
-            Close();
-        }
-        private void Window_PreviewMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            Close();
-        }
     }
 }

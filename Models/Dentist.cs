@@ -9,9 +9,9 @@ public partial class Dentist
 {
     public int Id { get; set; }
 
-    public int CategoryId { get; set; }
+    public int? CategoryId { get; set; }
 
-    public int SpecialityId { get; set; }
+    public int? SpecialityId { get; set; }
 
     public string Name { get; set; }
 
@@ -19,7 +19,7 @@ public partial class Dentist
 
     public DateOnly? BeginDate { get; set; }
 
-    public int DentalClinicId { get; set; }
+    public int? DentalClinicId { get; set; }
 
     public virtual Category Category { get; set; }
 

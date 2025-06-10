@@ -11,6 +11,8 @@ using System.Windows.Media.Animation;
 using System.Windows.Media;
 using System.Windows.Data;
 using DENTAL_WPF.Models;
+using System.ComponentModel;
+using System.Collections.ObjectModel;
 
 namespace DENTAL_WPF
 {
@@ -21,32 +23,31 @@ namespace DENTAL_WPF
     {
         OpenFileDialog loader = new();
         SaveFileDialog saver = new();
-        BitmapImage SaveBitmap;
-        BitmapImage LoadBitmap;
+        BitmapImage AddBitmap;
         BitmapImage InfoBitmap;
         About? a;
+        EditWindow? d;
         bool isDark = true;
         DENTAL_Context dc;
+        public ObservableCollection<Dentist> Dentists { get; set; }
+
         public MainWindow()
         {
             InitializeComponent();
+
             dc = new DENTAL_Context();
-            DentistsGrid.Columns.Add(new DataGridTextColumn()
-            { Header = "Идентификатор", Binding = new Binding("Id") });
-            DentistsGrid.Columns.Add(new DataGridTextColumn()
-            { Header = "Имя", Binding = new Binding("Name") });
-            DentistsGrid.Columns.Add(new DataGridTextColumn()
-            { Header = "Фамилия", Binding = new Binding("Surname") });
-            DentistsGrid.Columns.Add(new DataGridTextColumn()
-            { Header = "Дата начала работы", Binding = new Binding("BeginDate") });
-            DentistsGrid.Columns.Add(new DataGridTextColumn()
-            { Header = "Место работы", Binding = new Binding("DentalClinicId") });
-            DentistsGrid.Columns.Add(new DataGridTextColumn()
-            { Header = "Категория", Binding = new Binding("CategoryId") });
-            DentistsGrid.Columns.Add(new DataGridTextColumn()
-            { Header = "Специальность", Binding = new Binding("SpecialityId") });
-            DentistsGrid.ItemsSource = dc.Dentists.ToList();
-            
+            Dentists = new ObservableCollection<Dentist>(dc.Dentists.ToList());
+            DataContext = this;
+            RefreshDentists();
+        }
+
+        private void RefreshDentists()
+        {
+            Dentists.Clear();
+            foreach (var d in dc.Dentists.ToList())
+            {
+                Dentists.Add(d);
+            }
         }
         void CanExecuteHandler(object sender, CanExecuteRoutedEventArgs e)
         {
@@ -86,6 +87,11 @@ namespace DENTAL_WPF
             //    File.WriteAllText(saver.FileName, json);
             //    Status.Content = "Файл " + saver.FileName + " сохранен";
             //}
+        }
+        
+        private void RefreshClick(object sender, RoutedEventArgs e)
+        {
+            DentistsDataGrid.ItemsSource = dc?.Dentists.ToList();
         }
         private void AnimateButton(Button button)
         {
@@ -151,7 +157,34 @@ namespace DENTAL_WPF
         private void AboutClick(object sender, RoutedEventArgs e)
         {
             a = new About(isDark);
-            a.Show();
+            a.ShowDialog();
+        }
+        private void AddClick(object sender, RoutedEventArgs e)
+        {
+            var ids = dc.Dentists.Select(d => d.Id);
+            int nextMissingId = 1;
+
+            foreach (var id in ids)
+            {
+                if (id == nextMissingId)
+                    nextMissingId++;
+                else
+                    break;
+            }
+            var emp = new Dentist
+            {
+                Id = nextMissingId,
+                Name = "",
+                Surname = "",
+                BeginDate = null,
+                CategoryId = null,
+                SpecialityId = null,
+                DentalClinicId = null
+            };
+
+            var editWindow = new EditWindow(emp, dc);
+            editWindow.ShowDialog();
+            dc.SaveChanges();
         }
         private void ExitClick(object sender, RoutedEventArgs e)
         {
@@ -169,7 +202,6 @@ namespace DENTAL_WPF
         }
         private void ChangeTheme(object sender, RoutedEventArgs e)
         {
-            isDark = true;
             switch (((MenuItem)sender).Uid)
             {
                 case "0":
@@ -191,7 +223,6 @@ namespace DENTAL_WPF
                 case "4":
                     ThemesController.SetTheme(ThemeType.LightTheme);
                     SetImages(false);
-                    isDark = false;
                     break;
                 case "5":
                     ThemesController.SetTheme(ThemeType.RedBlackTheme);
@@ -206,29 +237,17 @@ namespace DENTAL_WPF
         }
         private void SetImages(bool b)
         {
-            SaveBitmap = new();
-            LoadBitmap = new();
+            AddBitmap = new();
             InfoBitmap = new();
-            SaveBitmap.BeginInit();
-            if (b) SaveBitmap.UriSource = new Uri("/Dsave.png", UriKind.Relative);
-            else SaveBitmap.UriSource = new Uri("/Lsave.png", UriKind.Relative);
-            SaveBitmap.EndInit();
-            //SaveImage.Source = SaveBitmap;
-            LoadBitmap.BeginInit();
-            if (b) LoadBitmap.UriSource = new Uri("/Dload.png", UriKind.Relative);
-            else LoadBitmap.UriSource = new Uri("/Lload.png", UriKind.Relative);
-            LoadBitmap.EndInit();
-            //LoadImage.Source = LoadBitmap;
+            AddBitmap.BeginInit();
+            if (b) AddBitmap.UriSource = new Uri("/Dadd.png", UriKind.Relative);
+            else AddBitmap.UriSource = new Uri("/Ladd.png", UriKind.Relative);
+            AddBitmap.EndInit();
+            
             InfoBitmap.BeginInit();
             if (b) InfoBitmap.UriSource = new Uri("/Dinfo.png", UriKind.Relative);
             else InfoBitmap.UriSource = new Uri("/Linfo.png", UriKind.Relative);
             InfoBitmap.EndInit();
-            //InfoImage.Source = InfoBitmap;
-
-        }
-
-        private void DentistsGrid_AddingNewItem(object sender, AddingNewItemEventArgs e)
-        {
 
         }
 
@@ -236,14 +255,52 @@ namespace DENTAL_WPF
         {
             dc.Dispose();
             dc = new();
-            DentistsGrid.ItemsSource = dc.Dentists.ToList();
+            DentistsDataGrid.ItemsSource = dc.Dentists.ToList();
         }
         private void SQLServerClick(object sender, RoutedEventArgs e)
         {
             dc.Dispose();
             dc = new(1);
-            DentistsGrid.ItemsSource = dc.Dentists.ToList();
+            DentistsDataGrid.ItemsSource = dc.Dentists.ToList();
         }
+
+        private void EditClick(object sender, RoutedEventArgs e)
+        {
+            var emp = DentistsDataGrid.SelectedItem as Dentist;
+            if (emp is not null)
+            {
+                d = new(emp, dc);
+                d.ShowDialog();
+                dc.SaveChanges();
+                RefreshClick(sender, e); // обновляем список
+            }
+            else
+            {
+                Status.Content = "Для удаления сотрудника выберите его !!!";
+            }
+        }
+
+        private void DeleteClick(object sender, RoutedEventArgs e)
+        {
+            if (MessageBox.Show("Вы действительно хотите удалить данные ?",
+                "Предупреждение", MessageBoxButton.YesNo, MessageBoxImage.Warning,
+                MessageBoxResult.Yes) == MessageBoxResult.Yes)
+            {
+                // SelectedIndex
+                var emp = DentistsDataGrid.SelectedItem as Dentist;
+                if (emp is not null)
+                {
+                    dc.Dentists.Remove(emp);
+                    dc.SaveChanges();
+                    RefreshClick(sender, e); // обновляем список
+                }
+                else
+                {
+                    Status.Content = "Для удаления сотрудника выберите его !!!";
+                }
+            }
+        }
+
     }
     public class Product
     {

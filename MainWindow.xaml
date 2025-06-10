@@ -17,7 +17,7 @@ xmlns:col="clr-namespace:System.Collections;assembly=mscorlib"
     <Grid ShowGridLines="True">
         <Grid.RowDefinitions>
             <RowDefinition Height="18*" MinHeight="18" MaxHeight="20"/>
-            <RowDefinition Height="25*" MinHeight="25"/>
+            <RowDefinition Height="25*" MinHeight="25" MaxHeight="30"/>
             <RowDefinition Height="350*"/>
             <RowDefinition Height="38*" MinHeight="38" MaxHeight="45"/>
         </Grid.RowDefinitions>
@@ -26,20 +26,16 @@ xmlns:col="clr-namespace:System.Collections;assembly=mscorlib"
                 <Label x:Name="Status" Content="Готово" VerticalAlignment="Center"/>
             </StatusBarItem>
         </StatusBar>
-        <ToolBar Grid.Row="1" MinHeight="20">
-            <Button x:Name="LoadTool" Click="LoadClick">
-                <Image x:Name="LoadImage" Source="/Dload.png"/>
-            </Button>
-            <Separator/>
-            <Button x:Name="SaveTool" Command="ApplicationCommands.Save">
-                <Image x:Name="SaveImage" Source="/Dsave.png"/>
+        <ToolBar Grid.Row="1" MinHeight="20" VerticalAlignment="Bottom">
+            <Button x:Name="AddTool" Click ="AddClick">
+                <Image x:Name="AddImage" Source="Dadd.png"/>
             </Button>
             <Separator/>
             <Button x:Name="AboutTool" Click="AboutClick">
                 <Image x:Name="InfoImage" Source="/Dinfo.png"/>
             </Button>
         </ToolBar>
-        <Menu Grid.ColumnSpan="3">
+        <Menu>
             <MenuItem x:Name="FileMenuItem" Header="Файл" >
                 <MenuItem x:Name="SaveMenuItem" Header="Сохранить" Command="ApplicationCommands.Save" VerticalContentAlignment="Center"/>
                 <MenuItem x:Name="LoadMenuItem" Header="Загрузить" Click="LoadClick" VerticalContentAlignment="Center"/>
@@ -88,8 +84,32 @@ xmlns:col="clr-namespace:System.Collections;assembly=mscorlib"
             <MenuItem x:Name="AboutMenuItem" Header="О программе" Click="AboutClick"/>
         </Menu>
         <TabControl Grid.Row="2">
-            <TabItem x:Name="DantistsTab" Header="Дантисты">
-                <DataGrid x:Name="DentistsGrid" AutoGenerateColumns="False" AddingNewItem="DentistsGrid_AddingNewItem"/>
+            <TabItem x:Name="DentistsTab" Header="Дантисты">
+                <DataGrid x:Name="DentistsDataGrid"
+              AutoGenerateColumns="False"
+              IsReadOnly="True"
+              ItemsSource="{Binding Dentists}"
+              SelectionUnit="FullRow" HeadersVisibility="Column" HorizontalAlignment="Left" VerticalAlignment="Top">
+                    
+                    
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Идентификатор" Binding="{Binding Id}" />
+                        <DataGridTextColumn Header="Имя" Binding="{Binding Name}" />
+                        <DataGridTextColumn Header="Фамилия" Binding="{Binding Surname}" />
+                        <DataGridTextColumn Header="Дата начала работы" Binding="{Binding BeginDate}" />
+                        <DataGridTextColumn Header="Место работы" Binding="{Binding DentalClinicId}" />
+                        <DataGridTextColumn Header="Категория" Binding="{Binding CategoryId}" />
+                        <DataGridTextColumn Header="Специальность" Binding="{Binding SpecialityId}" />
+                    </DataGrid.Columns>
+
+                    <DataGrid.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Name="EditMenuItem" Header="Редактировать" Click="EditClick"/>
+                            <MenuItem Name="DeleteMenuItem" Header="Удалить" Click="DeleteClick"/>
+                        </ContextMenu>
+                    </DataGrid.ContextMenu>
+                    
+                </DataGrid>
             </TabItem>
             <TabItem Header="Стоматологические клиники">
             </TabItem>
