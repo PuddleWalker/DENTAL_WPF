@@ -1,4 +1,4 @@
-﻿<Window x:Name="ClinicEditWindow1" x:Class="DENTAL_WPF.ClinicEditWindow"
+﻿<Window x:Name="LicenseEditWindow1" x:Class="DENTAL_WPF.LicenseEditWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -29,26 +29,8 @@ xmlns:col="clr-namespace:System.Collections;assembly=mscorlib"
         <StackPanel x:Name="GeneralStackPanel" Grid.Column="0" Grid.Row="0">
             <Label Content="Название" VerticalAlignment="Top" HorizontalAlignment="Left" Padding="8,5,5,5"/>
             <TextBox x:Name="NameTextBox" TextWrapping="Wrap" HorizontalAlignment="Left" Margin="8,0,0,0" MinWidth="120" MinHeight="22"/>
-            <Label Content="Страна" VerticalAlignment="Top" HorizontalAlignment="Left" Padding="8,5,5,5"/>
-            <TextBox x:Name="CountryTextBox" TextWrapping="Wrap" HorizontalAlignment="Left" Margin="8,0,0,0" MinWidth="120" MinHeight="22" TextChanged="CountryTextBox_TextChanged"/>
-            <Popup x:Name="SuggestionsPopup"
-               PlacementTarget="{Binding ElementName=CountryTextBox}"
-               Placement="Bottom"
-               StaysOpen="False"
-               AllowsTransparency="True">
-                <Border>
-                    <ListBox x:Name="SuggestionsList"
-                         MaxHeight="150"
-                         SelectionChanged="SuggestionsList_SelectionChanged"
-                         ItemsSource="{Binding Path=DataContext.Suggestions, RelativeSource={RelativeSource AncestorType=Grid}}"
-                         DisplayMemberPath="."/>
-                </Border>
-            </Popup>
-            <Label Content="Город" VerticalAlignment="Top" HorizontalAlignment="Left" Padding="8,5,5,5"/>
-            <TextBox x:Name="CityTextBox" HorizontalAlignment="Left" Margin="8,0,0,0" MinWidth="120" MinHeight="22"/>
-            <Label Content="Идентификатор лицензии" VerticalAlignment="Top" HorizontalAlignment="Left" Padding="8,5,5,5"/>
-            <ComboBox x:Name="LicenseIdComboBox" HorizontalAlignment="Left" Margin="8,0,0,0" MinWidth="120" MinHeight="22"/>
-            
+            <Label Content="Выдающая компания" VerticalAlignment="Top" HorizontalAlignment="Left" Padding="8,5,5,5"/>
+            <TextBox x:Name="CompanyTextBox" TextWrapping="Wrap" HorizontalAlignment="Left" Margin="8,0,0,0" MinWidth="120" MinHeight="22"/>
         </StackPanel>
     </Grid>
 </Window>

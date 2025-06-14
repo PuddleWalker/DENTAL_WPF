@@ -9,41 +9,62 @@ namespace DENTAL_WPF
     public partial class ShortEditWindow : Window
     {
         private bool isChanged = false;
-        private DentalClinic den;
+        private bool isSpec = false;
+        private Speciality? spec;
+        private Category? cat;
         private readonly DENTAL_Context dc;
-        private bool isNewDentist = false;
 
 
-        public ShortEditWindow(DentalClinic d, DENTAL_Context context)
+        public ShortEditWindow(Speciality s, DENTAL_Context context)
         {
             InitializeComponent();
-
-            den = d ?? throw new ArgumentNullException(nameof(d));
+            ShortEditWindow1.Title = "Редактирование специальности";
+            isSpec = true;
+            cat = null;
+            spec = s ?? throw new ArgumentNullException(nameof(s));
             dc = context ?? throw new ArgumentNullException(nameof(context));
-            isNewDentist = false;
 
             InitializeFields();
         }
 
+        public ShortEditWindow(Category c, DENTAL_Context context)
+        {
+            InitializeComponent();
+            ShortEditWindow1.Title = "Редактирование категории";
+            spec = null;
+            cat = c ?? throw new ArgumentNullException(nameof(c));
+            dc = context ?? throw new ArgumentNullException(nameof(context));
 
+            InitializeFields();
+        }
 
         private void InitializeFields()
         {
-            NameTextBox.Text = den.Name ?? string.Empty;
+            if (isSpec) NameTextBox.Text = spec?.Name ?? string.Empty;
+            else NameTextBox.Text = cat?.Name ?? string.Empty;
         }
 
         private void SaveClick(object sender, RoutedEventArgs e)
         {
+            if (isSpec)
+            {
+                spec.Name = NameTextBox?.Text ?? string.Empty;
+                if (dc.Specialities.Find(spec.Id) != null) dc.Update(spec);
+                else dc.Add(spec);
+            }
+            else
+            {
+                cat.Name = NameTextBox?.Text ?? string.Empty;
 
-            den.Name = NameTextBox.Text;
-
-            if (dc.DentalClinics.Find(den.Id) != null) dc.Update(den);
-            else dc.Add(den);
+                if (dc.Categories.Find(cat.Id) != null) dc.Update(cat);
+                else dc.Add(cat);
+            }
         }
 
         void CancelClick(object sender, RoutedEventArgs e)
         {
-            NameTextBox.Text = den.Name ?? string.Empty;
+            if(isSpec) NameTextBox.Text = spec.Name ?? string.Empty;
+            else NameTextBox.Text = cat.Name ?? string.Empty;
 
         }
 

@@ -26,6 +26,8 @@ namespace DENTAL_WPF
         About? a;
         EditWindow? D;
         ClinicEditWindow? CdD;
+        ShortEditWindow? SD;
+        LicenseEditWindow? LD;
         bool isDark = true;
         DENTAL_Context dc;
         public ObservableCollection<Dentist> Dentists { get; set; }
@@ -39,29 +41,18 @@ namespace DENTAL_WPF
             InitializeComponent();
 
             dc = new DENTAL_Context();
-            Dentists = new(dc.Dentists.ToList());
-            DentalClinics = new(dc.DentalClinics.ToList());
-            Licenses = new(dc.Licenses.ToList());
-            Categories = new(dc.Categories.ToList());
-            Specialities = new(dc.Specialities.ToList());
+            Dentists = new(dc.Dentists.ToList().Distinct());
+            DentalClinics = new(dc.DentalClinics.ToList().Distinct());
+            Licenses = new(dc.Licenses.ToList().Distinct());
+            Categories = new(dc.Categories.ToList().Distinct());
+            Specialities = new(dc.Specialities.ToList().Distinct());
             DataContext = this;
-            RefreshDentists();
         }
 
-        private void RefreshDentists()
-        {
-            Dentists.Clear();
-            foreach (var d in dc.Dentists.ToList())
-            {
-                Dentists.Add(d);
-            }
-        }
         void CanExecuteHandler(object sender, CanExecuteRoutedEventArgs e)
         {
             e.CanExecute = true;
         }
-
-        
 
         private void NumberFilter(object sender, System.Windows.Input.TextCompositionEventArgs e)
         {
@@ -83,7 +74,7 @@ namespace DENTAL_WPF
             switch (ProgTabControl.SelectedIndex)
             {
                 case 0:
-                    ids = dc.Dentists.Select(d => d.Id);
+                    ids = dc.Dentists.Distinct().Select(d => d.Id);
                     nextMissingId = 1;
 
                     foreach (var id in ids)
@@ -107,10 +98,10 @@ namespace DENTAL_WPF
                     editWindow = new EditWindow((Dentist)emp, dc);
                     ((EditWindow)editWindow).ShowDialog();
                     dc.SaveChanges();
-                    DentistsDataGrid.ItemsSource = dc?.Dentists.ToList();
+                    DentistsDataGrid.ItemsSource = dc?.Dentists.ToList().Distinct();
                     break;
                 case 1:
-                    ids = dc.DentalClinics.Select(d => d.Id);
+                    ids = dc.DentalClinics.Distinct().Select(d => d.Id);
                     nextMissingId = 1;
 
                     foreach (var id in ids)
@@ -132,7 +123,74 @@ namespace DENTAL_WPF
                     editWindow = new ClinicEditWindow((DentalClinic)emp, dc);
                     ((ClinicEditWindow)editWindow).ShowDialog();
                     dc.SaveChanges();
-                    ClinicsDataGrid.ItemsSource = dc?.DentalClinics.ToList();
+                    ClinicsDataGrid.ItemsSource = dc?.DentalClinics.ToList().Distinct();
+                    break;
+                case 2:
+                    ids = dc.Specialities.Distinct().Select(d => d.Id);
+                    nextMissingId = 1;
+
+                    foreach (var id in ids)
+                    {
+                        if (id == nextMissingId)
+                            nextMissingId++;
+                        else
+                            break;
+                    }
+                    emp = new Speciality
+                    {
+                        Id = nextMissingId,
+                        Name = ""
+                    };
+
+                    editWindow = new ShortEditWindow((Models.Speciality)emp, dc);
+                    ((ShortEditWindow)editWindow).ShowDialog();
+                    dc.SaveChanges();
+                    SpecialitiesDataGrid.ItemsSource = dc?.Specialities.ToList().Distinct();
+                    break;
+                case 3:
+                    ids = dc.Categories.Distinct().Select(d => d.Id);
+                    nextMissingId = 1;
+
+                    foreach (var id in ids)
+                    {
+                        if (id == nextMissingId)
+                            nextMissingId++;
+                        else
+                            break;
+                    }
+                    emp = new Category
+                    {
+                        Id = nextMissingId,
+                        Name = ""
+                    };
+
+                    editWindow = new ShortEditWindow((Models.Category)emp, dc);
+                    ((ShortEditWindow)editWindow).ShowDialog();
+                    dc.SaveChanges();
+                    CategoriesDataGrid.ItemsSource = dc?.Categories.ToList().Distinct();
+                    break;
+                case 4:
+                    ids = dc.Licenses.Distinct().Select(d => d.Id);
+                    nextMissingId = 1;
+
+                    foreach (var id in ids)
+                    {
+                        if (id == nextMissingId)
+                            nextMissingId++;
+                        else
+                            break;
+                    }
+                    emp = new Models.License
+                    {
+                        Id = nextMissingId,
+                        Name = "",
+                        IssuingCompany = ""
+                    };
+
+                    editWindow = new LicenseEditWindow((Models.License)emp, dc);
+                    ((LicenseEditWindow)editWindow).ShowDialog();
+                    dc.SaveChanges();
+                    LicensesDataGrid.ItemsSource = dc?.Licenses.ToList().Distinct();
                     break;
                 default:
                     MessageBox.Show("Пока не работает",
@@ -242,47 +300,47 @@ namespace DENTAL_WPF
         }
         private void CategoryEditClick(object sender, RoutedEventArgs e)
         {
-            var emp = ClinicsDataGrid.SelectedItem as DentalClinic;
+            var emp = CategoriesDataGrid.SelectedItem as Category;
             if (emp is not null)
             {
-                CdD = new(emp, dc);
-                CdD.ShowDialog();
+                SD = new(emp, dc);
+                SD.ShowDialog();
                 dc.SaveChanges();
-                ClinicsDataGrid.ItemsSource = dc?.DentalClinics.ToList();
+                CategoriesDataGrid.ItemsSource = dc?.Categories.ToList();
             }
             else
             {
-                Status.Content = "Для удаления редактирования клиники выберите её !!!";
+                Status.Content = "Для удаления редактирования категории выберите её !!!";
             }
         }
         private void SpecialityEditClick(object sender, RoutedEventArgs e)
         {
-            var emp = ClinicsDataGrid.SelectedItem as DentalClinic;
+            var emp = SpecialitiesDataGrid.SelectedItem as Speciality;
             if (emp is not null)
             {
-                CdD = new(emp, dc);
-                CdD.ShowDialog();
+                SD = new(emp, dc);
+                SD.ShowDialog();
                 dc.SaveChanges();
-                ClinicsDataGrid.ItemsSource = dc?.DentalClinics.ToList();
+                SpecialitiesDataGrid.ItemsSource = dc?.Specialities.ToList();
             }
             else
             {
-                Status.Content = "Для удаления редактирования клиники выберите её !!!";
+                Status.Content = "Для удаления редактирования специальности выберите её !!!";
             }
         }
         private void LicenseEditClick(object sender, RoutedEventArgs e)
         {
-            var emp = ClinicsDataGrid.SelectedItem as DentalClinic;
+            var emp = LicensesDataGrid.SelectedItem as Models.License;
             if (emp is not null)
             {
-                CdD = new(emp, dc);
-                CdD.ShowDialog();
+                LD = new(emp, dc);
+                LD.ShowDialog();
                 dc.SaveChanges();
-                ClinicsDataGrid.ItemsSource = dc?.DentalClinics.ToList();
+                LicensesDataGrid.ItemsSource = dc.Licenses.ToList();
             }
             else
             {
-                Status.Content = "Для удаления редактирования клиники выберите её !!!";
+                Status.Content = "Для удаления редактирования лицензии выберите её !!!";
             }
         }
         private void DeleteClick(object sender, RoutedEventArgs e)
@@ -297,7 +355,7 @@ namespace DENTAL_WPF
                 {
                     dc.Dentists.Remove(emp);
                     dc.SaveChanges();
-                    DentistsDataGrid.ItemsSource = dc?.Dentists.ToList();
+                    DentistsDataGrid.ItemsSource = dc?.Dentists.ToList().Distinct();
                 }
                 else
                 {
@@ -315,9 +373,19 @@ namespace DENTAL_WPF
                 var emp = ClinicsDataGrid.SelectedItem as DentalClinic;
                 if (emp is not null)
                 {
-                    dc.DentalClinics.Remove(emp);
-                    dc.SaveChanges();
-                    ClinicsDataGrid.ItemsSource = dc?.DentalClinics.ToList(); // обновляем список
+                    if (emp.Dentists.Count() == 0)
+                    {
+                        dc.DentalClinics.Remove(emp);
+                        dc.SaveChanges();
+                        ClinicsDataGrid.ItemsSource = dc?.DentalClinics.ToList().Distinct(); // обновляем список
+                    }
+                    else
+                    {
+                        MessageBox.Show("Невозможно удалить: имеются привязанные данные",
+                     "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning,
+                     MessageBoxResult.Yes);
+                       
+                    }
                 }
                 else
                 {
@@ -333,11 +401,22 @@ namespace DENTAL_WPF
             {
                 // SelectedIndex
                 var emp = CategoriesDataGrid.SelectedItem as Models.Category;
+                
                 if (emp is not null)
                 {
-                    dc.Categories.Remove(emp);
-                    dc.SaveChanges();
-                    CategoriesDataGrid.ItemsSource = dc?.Categories.ToList(); // обновляем список
+                    if (emp.Dentists.Count() == 0)
+                    {
+                        dc.Categories.Remove(emp);
+                        dc.SaveChanges();
+                        CategoriesDataGrid.ItemsSource = dc?.Categories.ToList().Distinct(); // обновляем список
+                    }
+                    else
+                    {
+                        MessageBox.Show("Невозможно удалить: имеются привязанные данные",
+                     "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning,
+                     MessageBoxResult.Yes);
+
+                    }
                 }
                 else
                 {
@@ -355,9 +434,19 @@ namespace DENTAL_WPF
                 var emp = SpecialitiesDataGrid.SelectedItem as Models.Speciality;
                 if (emp is not null)
                 {
-                    dc.Specialities.Remove(emp);
-                    dc.SaveChanges();
-                    SpecialitiesDataGrid.ItemsSource = dc?.Specialities.ToList(); // обновляем список
+                    if (emp.Dentists.Count() == 0)
+                    {
+                        dc.Specialities.Remove(emp);
+                        dc.SaveChanges();
+                        SpecialitiesDataGrid.ItemsSource = dc?.Specialities.ToList().Distinct(); // обновляем список
+                    }
+                    else
+                    {
+                        MessageBox.Show("Невозможно удалить: имеются привязанные данные",
+                     "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning,
+                     MessageBoxResult.Yes);
+
+                    }
                 }
                 else
                 {
@@ -375,9 +464,18 @@ namespace DENTAL_WPF
                 var emp = LicensesDataGrid.SelectedItem as Models.License;
                 if (emp is not null)
                 {
-                    dc.Licenses.Remove(emp);
-                    dc.SaveChanges();
-                    LicensesDataGrid.ItemsSource = dc?.Licenses.ToList(); // обновляем список
+                    if (emp.DentalClinics.Count() == 0)
+                    {
+                        dc.Licenses.Remove(emp);
+                        dc.SaveChanges();
+                        LicensesDataGrid.ItemsSource = dc?.Licenses.ToList().Distinct(); // обновляем список
+                    }
+                    else
+                    {
+                        MessageBox.Show("Невозможно удалить: имеются привязанные данные",
+                     "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning,
+                     MessageBoxResult.Yes);
+                    }
                 }
                 else
                 {

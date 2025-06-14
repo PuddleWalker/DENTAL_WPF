@@ -184,7 +184,7 @@ SelectionUnit="FullRow" HeadersVisibility="Column" HorizontalAlignment="Left" Ve
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Идентификатор" Binding="{Binding Id}" />
                         <DataGridTextColumn Header="Название специальности" Binding="{Binding Name}" />
-                        <DataGridTextColumn Header="Выдащая компания" Binding="{Binding IssuingCompany}" />
+                        <DataGridTextColumn Header="Выдающая компания" Binding="{Binding IssuingCompany}" />
                     </DataGrid.Columns>
 
                     <DataGrid.ContextMenu>

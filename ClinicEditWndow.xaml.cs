@@ -2,6 +2,7 @@
 using System;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace DENTAL_WPF
@@ -12,7 +13,7 @@ namespace DENTAL_WPF
         private DentalClinic den;
         private readonly DENTAL_Context dc;
         private bool isNewDentist = false;
-
+        public List<string> Countries = new(){"Australia", "Austria", "Azerbaijan", "Albania", "Algeria", "Angola", "Andorra", "Antigua and Barbuda", "Argentina", "Armenia", "Afghanistan", "The Bahamas", "Bangladesh", "Barbados", "Bahrain", "Belarus", "Belize", "Belgium", "Benin", "Bulgaria", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Burkina Faso", "Burundi", "Bhutan", "Vanuatu", "Vatican City", "UK", "Hungary", "Venezuela", "East Timor", "Vietnam", "Gabon", "Haiti", "Guyana", "Gambia", "Ghana", "Guatemala", "Guinea", "Guinea-Bissau", "Germany", "Honduras", "Grenada", "Greece", "Georgia", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "Egypt", "Zambia", "Zimbabwe", "Israel", "India", "Indonesia", "Jordan", "Iraq", "Iran", "Ireland", "Iceland", "Spain", "Italy", "Yemen", "Cabo Verde", "Kazakhstan", "Cambodia", "Cameroon", "Canada", "Qatar", "Kenya", "Cyprus", "Kyrgyzstan", "Kiribati", "China", "Colombia", "Comoros", "Republic of the Congo", "DR Congo", "Costa Rica", "Côte d'Ivoire", "Cuba", "Kuwait", "Laos", "Latvia", "Lesotho", "Liberia", "Lebanon", "Libya", "Lithuania", "Liechtenstein", "Luxembourg", "Mauritius", "Mauritania", "Madagascar", "Malawi", "Malaysia", "Mali", "Maldives", "Malta", "Morocco", "Marshall Islands", "Mexico", "Mozambique", "Moldova", "Monaco", "Mongolia", "Myanmar", "Namibia", "Nauru", "Nepal", "Niger", "Nigeria", "Netherlands", "Nicaragua", "New Zealand", "Norway", "UAE", "Oman", "Pakistan", "Palau", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Poland", "Portugal", "South Korea", "North Macedonia", "Russia", "Rwanda", "Romania", "El Salvador", "Samoa", "San Marino", "São Tomé and Príncipe", "Saudi Arabia", "Eswatini", "Seychelles", "Senegal", "Saint Vincent and the Grenadines", "Saint Kitts and Nevis", "Saint Lucia", "Serbia", "Singapore", "Syria", "Slovakia", "Slovenia", "USA", "Solomon Islands", "Somalia", "Sudan", "Suriname", "Sierra Leone", "Tajikistan", "Thailand", "Tanzania", "Togo", "Tonga", "Trinidad and Tobago", "Tuvalu", "Tunisia", "Turkmenistan", "Turkey", "Uganda", "Uzbekistan", "Ukraine", "Uruguay", "Federated States of Micronesia", "Fiji", "Philippines", "Finland", "France", "Croatia", "Chad", "Montenegro", "Czech Republic", "Chile", "Switzerland", "Sweden", "Sri Lanka", "Ecuador", "Equatorial Guinea", "Eritrea", "Estonia", "Ethiopia", "South Africa", "South Korea", "South Sudan", "Jamaica", "Japan"};
 
         public ClinicEditWindow(DentalClinic d, DENTAL_Context context)
         {
@@ -154,6 +155,29 @@ namespace DENTAL_WPF
                 {
                     e.Cancel = true;
                 }
+            }
+        }
+        private void CountryTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            string input = CountryTextBox.Text.ToLower();
+
+            if (string.IsNullOrWhiteSpace(input))
+            {
+                SuggestionsPopup.IsOpen = false;
+                return;
+            }
+
+            var filtered = Countries.Where(s => s.ToLower().Contains(input)).ToList();
+            SuggestionsList.ItemsSource = filtered;
+            SuggestionsPopup.IsOpen = filtered.Count > 0;
+        }
+        private void SuggestionsList_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            if (SuggestionsList.SelectedItem is string selected)
+            {
+                CountryTextBox.Text = selected;
+                CountryTextBox.CaretIndex = selected.Length;
+                SuggestionsPopup.IsOpen = false;
             }
         }
     }
